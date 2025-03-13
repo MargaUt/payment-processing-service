@@ -1,0 +1,47 @@
+# Ignore compiled Java files
+*.class
+
+# Ignore Maven
+target/
+build/
+
+# Ignore IDE-specific files
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore logs
+logs/
+*.log
+*.log.*
+
+# Ignore temporary files
+*.tmp
+*.swp
+*.swo
+
+# Ignore environment variables and secret configurations
+.env
+*.properties
+application.yml
+application-*.yml  # Ignore environment-specific configs
+
+# Ignore test reports
+surefire-reports/
+test-output/
+
+# Ignore Swagger / API documentation auto-generated files
+swagger-ui/
+
+# Ignore generated metadata
+*.lock
+*.jar
+*.war
+*.ear
+
