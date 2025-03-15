@@ -23,7 +23,8 @@ public abstract class Payment {
 
     @NotNull
     @DecimalMin(value = "0.01", message = "Amount must be positive")
-    private Double amount;
+    //It avoids floating-point precision issues found in double and float.
+    private BigDecimal amount;
 
     @NotNull
     @Pattern(regexp = "EUR|USD", message = "Currency must be EUR or USD")

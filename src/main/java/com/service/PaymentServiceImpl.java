@@ -1,5 +1,6 @@
 package com.service;
 
+import com.dto.PaymentFeeResponseDTO;
 import com.dto.PaymentRequestDTO;
 import com.dto.PaymentResponseDTO;
 import com.model.Payment;
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -86,6 +88,29 @@ public class PaymentServiceImpl implements PaymentService {
         return modelMapper.map(payment, PaymentResponseDTO.class);
     }
 
+    @Override
+    public List<Long> getNonCancelledPaymentIdsByAmount(BigDecimal amount) {
+        return paymentRepository.findNonCancelledPaymentIdsByAmount(amount);
+    }
+
+    @Override
+    public List<Long> getAllNonCancelledPaymentIds() {
+        return paymentRepository.findAllNonCancelledPaymentIds();
+    }
+
+    @Override
+    public PaymentFeeResponseDTO getPaymentById(Long paymentId) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new IllegalArgumentException("Payment not found with ID: " + paymentId));
+
+        BigDecimal cancellationFee = calculateCancellationFee(payment);
+        PaymentFeeResponseDTO responseDTO = new PaymentFeeResponseDTO(payment.getId(), cancellationFee);
+
+        log.info("Retrieved payment ID and cancellation fee for ID: {}", paymentId);
+
+        return responseDTO;
+    }
+
     //TODO: think about moving to another class
     private BigDecimal calculateCancellationFee(Payment payment) {
 
@@ -122,7 +147,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private void validatePaymentRequest(PaymentRequestDTO request) {
-        if (request.getAmount() == null || request.getAmount() <= 0) {
+        if (request.getAmount() == null || request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Amount must be positive");
         }
 
