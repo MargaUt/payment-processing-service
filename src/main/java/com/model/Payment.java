@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -15,6 +17,8 @@ import java.time.LocalDateTime;
 @Table(name = "payments")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "payment_type")
+@Getter
+@Setter
 public abstract class Payment {
 
     @Id
@@ -46,4 +50,7 @@ public abstract class Payment {
 
     // Flag to indicate if the payment is canceled
     private boolean isCancelled;
+
+    private boolean notified;
+    private LocalDateTime notificationTime;
 }

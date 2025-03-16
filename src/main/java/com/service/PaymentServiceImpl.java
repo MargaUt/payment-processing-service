@@ -1,6 +1,7 @@
 package com.service;
 
 import com.dto.PaymentFeeResponseDTO;
+import com.dto.PaymentNotificationDTO;
 import com.dto.PaymentRequestDTO;
 import com.dto.PaymentResponseDTO;
 import com.model.Payment;
@@ -8,6 +9,7 @@ import com.model.Type1Payment;
 import com.model.Type2Payment;
 import com.model.Type3Payment;
 import com.repository.PaymentRepository;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -22,15 +24,19 @@ import java.util.List;
 @Slf4j
 public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
-
     private final ModelMapper modelMapper;
+    private final NotificationService notificationService;
 
-    public PaymentServiceImpl(ModelMapper modelMapper, PaymentRepository paymentRepository) {
+    public PaymentServiceImpl(ModelMapper modelMapper,
+                              PaymentRepository paymentRepository,
+                              NotificationService notificationService) {
         this.modelMapper = modelMapper;
         this.paymentRepository =  paymentRepository;
+        this.notificationService = notificationService;
     }
 
     @Override
+    @Transactional
     public PaymentResponseDTO createPayment(PaymentRequestDTO request) {
         validatePaymentRequest(request);
 
@@ -48,16 +54,21 @@ public class PaymentServiceImpl implements PaymentService {
         payment = paymentRepository.save(payment);
         log.info("Payment created with ID: {}, type: {}", payment.getId(), payment.getClass().getSimpleName());
 
-        // TODO: notify that payment was created
+        // Send notification for TYPE1 and TYPE2 payments
+        if (payment instanceof Type1Payment || payment instanceof Type2Payment) {
+            PaymentNotificationDTO notificationResult = notificationService.notifyPaymentCreated(payment);
+            log.info("Notification for payment ID: {} was {}",
+                    payment.getId(), notificationResult.isNotified() ? "successful" : "unsuccessful");
+        }
 
-        PaymentResponseDTO responseDTO = modelMapper.map(payment, PaymentResponseDTO.class);
+        // Fetch the updated payment with notification info
+        payment = paymentRepository.findById(payment.getId()).orElse(payment);
 
-        responseDTO.setCreationTime(payment.getCreationTime());
-
-        return responseDTO;
+        return modelMapper.map(payment, PaymentResponseDTO.class);
     }
 
     @Override
+    @Transactional
     public PaymentResponseDTO cancelPayment(Long paymentId) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new IllegalArgumentException("Payment not found with ID: " + paymentId));
@@ -73,17 +84,12 @@ public class PaymentServiceImpl implements PaymentService {
         BigDecimal cancellationFee = calculateCancellationFee(payment);
         payment.setCancellationFee(cancellationFee);
         payment.setCancelled(true);
-        // TODO: add this to the response DTO
+        // TODO: add this to the response DTO?
         //payment.setCancellationTime(now);
 
         // Save payment with cancellation details
         payment = paymentRepository.save(payment);
         log.info("Payment cancelled with ID: {}, cancellation fee: {} EUR", payment.getId(), cancellationFee);
-
-        // TODO: notify that payment was cancelled
-        // if (notificationService != null) {
-        //     notificationService.notifyPaymentCancelled(payment);
-        // }
 
         return modelMapper.map(payment, PaymentResponseDTO.class);
     }
@@ -171,10 +177,6 @@ public class PaymentServiceImpl implements PaymentService {
             }
         }
 
-        // TYPE3 validations (EUR or USD with BIC)
-        if (request.getCreditorBic() != null && !request.getCreditorBic().isBlank()) {
-            // No additional validation needed, already checked currency above
-        }
     }
 
     /**
