@@ -1,6 +1,13 @@
 package com.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.DiscriminatorColumn;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -27,7 +34,6 @@ public abstract class Payment {
 
     @NotNull
     @DecimalMin(value = "0.01", message = "Amount must be positive")
-    //It avoids floating-point precision issues found in double and float.
     private BigDecimal amount;
 
     @NotNull
@@ -42,13 +48,10 @@ public abstract class Payment {
     @NotBlank(message = "Creditor IBAN is required")
     private String creditorIban;
 
-    // Timestamp when the payment was created
     private LocalDateTime creationTime;
 
-    // The cancellation fee calculated in EUR
     private BigDecimal cancellationFee;
 
-    // Flag to indicate if the payment is canceled
     private boolean isCancelled;
 
     private boolean notified;

@@ -20,7 +20,6 @@ public class NotificationServiceImpl implements NotificationService {
     private final RestTemplate restTemplate;
     private final PaymentRepository paymentRepository;
 
-    // URLs for different payment types
     private static final String TYPE1_NOTIFICATION_URL = "https://api.notification-service.com/payments/type1/";
     private static final String TYPE2_NOTIFICATION_URL = "https://api.notification-service.com/payments/type2/";
 
@@ -36,7 +35,6 @@ public class NotificationServiceImpl implements NotificationService {
         notificationDTO.setPaymentType(payment.getClass().getSimpleName());
         notificationDTO.setNotificationTime(LocalDateTime.now());
 
-        // Skip notification for payments that are not TYPE1 or TYPE2
         if (!(payment instanceof Type1Payment) && !(payment instanceof Type2Payment)) {
             log.info("Skipping notification for payment ID: {}, type: {}",
                     payment.getId(), payment.getClass().getSimpleName());
@@ -52,15 +50,12 @@ public class NotificationServiceImpl implements NotificationService {
             log.info("Sending notification for payment ID: {} to URL: {}",
                     payment.getId(), notificationUrl);
 
-            // Append payment ID to the URL
             String fullUrl = notificationUrl + payment.getId();
 
-            // Send HTTP GET request
             ResponseEntity<String> response = restTemplate.getForEntity(fullUrl, String.class);
 
             statusCode = response.getStatusCode().value();
 
-            // Check if status code is 2XX (success)
             success = response.getStatusCode().is2xxSuccessful();
 
             log.info("Notification for payment ID: {} was {}, status code: {}",
