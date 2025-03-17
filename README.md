@@ -7,7 +7,7 @@ This is a RESTful web service for payment processing. The application allows cli
 - **Payment Creation**: Supports three payment types (TYPE1, TYPE2, TYPE3) with mandatory and optional fields.
 - **Payment Cancellation**: Allows cancellation on the day of creation before 00:00, with a calculated cancellation fee.
 - **Payments Querying**: Retrieves non-canceled payments and allows filtering by amount.
-- **Client Country Logging**: Logs client country based on IP resolution.
+- **Client Country Logging**: Logs client country based on clients IP.
 - **Notification Service**: Notifies external services about valid TYPE1 and TYPE2 payments.
 
 ## Payment Types
