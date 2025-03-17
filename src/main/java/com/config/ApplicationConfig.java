@@ -9,9 +9,7 @@ import org.springframework.web.client.RestTemplate;
 public class ApplicationConfig {
 
     @Bean
-    public ModelMapper modelMapper() {
-        return new ModelMapper();
-    }
+    public ModelMapper modelMapper() {return new ModelMapper();}
 
     @Bean
     public RestTemplate restTemplate() { return new RestTemplate(); }

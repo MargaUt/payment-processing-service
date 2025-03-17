@@ -5,6 +5,7 @@ import com.model.Payment;
 import com.model.Type1Payment;
 import com.model.Type2Payment;
 import com.model.Type3Payment;
+import com.model.Currency;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -22,7 +23,7 @@ class PaymentUtilsTest {
     void validatePaymentRequest_ValidRequest() {
         PaymentRequestDTO validRequest = new PaymentRequestDTO();
         validRequest.setAmount(BigDecimal.TEN);
-        validRequest.setCurrency("EUR");
+        validRequest.setCurrency(Currency.EUR);
         validRequest.setDebtorIban("DE1234567890");
         validRequest.setCreditorIban("GB0987654321");
         validRequest.setDetails("Payment details");
@@ -34,7 +35,7 @@ class PaymentUtilsTest {
     void validatePaymentRequest_InvalidAmount() {
         PaymentRequestDTO invalidRequest = new PaymentRequestDTO();
         invalidRequest.setAmount(BigDecimal.ZERO);
-        invalidRequest.setCurrency("EUR");
+        invalidRequest.setCurrency(Currency.EUR);
         invalidRequest.setDebtorIban("DE1234567890");
         invalidRequest.setCreditorIban("GB0987654321");
 
@@ -44,23 +45,10 @@ class PaymentUtilsTest {
     }
 
     @Test
-    void validatePaymentRequest_InvalidCurrency() {
-        PaymentRequestDTO invalidRequest = new PaymentRequestDTO();
-        invalidRequest.setAmount(BigDecimal.TEN);
-        invalidRequest.setCurrency("GBP");
-        invalidRequest.setDebtorIban("DE1234567890");
-        invalidRequest.setCreditorIban("GB0987654321");
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> PaymentUtils.validatePaymentRequest(invalidRequest));
-        assertEquals("Currency must be EUR or USD", exception.getMessage());
-    }
-
-    @Test
     void validatePaymentRequest_MissingDebtorIban() {
         PaymentRequestDTO invalidRequest = new PaymentRequestDTO();
         invalidRequest.setAmount(BigDecimal.TEN);
-        invalidRequest.setCurrency("EUR");
+        invalidRequest.setCurrency(Currency.EUR);
         invalidRequest.setDebtorIban(null);
         invalidRequest.setCreditorIban("GB0987654321");
 
@@ -73,7 +61,7 @@ class PaymentUtilsTest {
     void validatePaymentRequest_MissingCreditorBicForType1() {
         PaymentRequestDTO invalidRequest = new PaymentRequestDTO();
         invalidRequest.setAmount(BigDecimal.TEN);
-        invalidRequest.setCurrency("EUR");
+        invalidRequest.setCurrency(Currency.EUR);
         invalidRequest.setDebtorIban("DE1234567890");
         invalidRequest.setCreditorIban("GB0987654321");
         invalidRequest.setDetails("");
@@ -86,7 +74,7 @@ class PaymentUtilsTest {
     @Test
     void determineAndCreatePaymentEntity_Type1Payment() {
         PaymentRequestDTO request = new PaymentRequestDTO();
-        request.setCurrency("EUR");
+        request.setCurrency(Currency.EUR);
         request.setDetails("Payment details");
 
         Payment payment = PaymentUtils.determineAndCreatePaymentEntity(request);
@@ -97,7 +85,7 @@ class PaymentUtilsTest {
     @Test
     void determineAndCreatePaymentEntity_Type2Payment() {
         PaymentRequestDTO request = new PaymentRequestDTO();
-        request.setCurrency("USD");
+        request.setCurrency(Currency.USD);
         request.setDetails("Payment details");
 
         Payment payment = PaymentUtils.determineAndCreatePaymentEntity(request);
@@ -108,7 +96,7 @@ class PaymentUtilsTest {
     @Test
     void determineAndCreatePaymentEntity_Type3Payment() {
         PaymentRequestDTO request = new PaymentRequestDTO();
-        request.setCurrency("USD");
+        request.setCurrency(Currency.USD);
         request.setCreditorBic("BIC123");
 
         Payment payment = PaymentUtils.determineAndCreatePaymentEntity(request);
@@ -120,7 +108,7 @@ class PaymentUtilsTest {
     void calculateCancellationFee_Type1Payment() {
         Type1Payment payment = new Type1Payment();
         payment.setCreationTime(LocalDateTime.now().minusHours(5));
-        payment.setCurrency("EUR");
+        payment.setCurrency(Currency.EUR);
 
         BigDecimal fee = PaymentUtils.calculateCancellationFee(payment);
         assertEquals(new BigDecimal("0.25").setScale(2, RoundingMode.HALF_UP), fee);
@@ -130,7 +118,7 @@ class PaymentUtilsTest {
     void calculateCancellationFee_Type2Payment() {
         Type2Payment payment = new Type2Payment();
         payment.setCreationTime(LocalDateTime.now().minusHours(3));
-        payment.setCurrency("USD");
+        payment.setCurrency(Currency.USD);
 
         BigDecimal fee = PaymentUtils.calculateCancellationFee(payment);
         assertEquals(new BigDecimal("0.28").setScale(2, RoundingMode.HALF_UP), fee);
@@ -140,7 +128,7 @@ class PaymentUtilsTest {
     void calculateCancellationFee_Type3Payment() {
         Type3Payment payment = new Type3Payment();
         payment.setCreationTime(LocalDateTime.now().minusHours(10));
-        payment.setCurrency("EUR");
+        payment.setCurrency(Currency.EUR);
 
         BigDecimal fee = PaymentUtils.calculateCancellationFee(payment);
         assertEquals(new BigDecimal("1.50").setScale(2, RoundingMode.HALF_UP), fee);

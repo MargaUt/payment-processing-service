@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -32,15 +31,21 @@ public class PaymentController {
     private final PaymentService paymentService;
     private final CountryResolverService countryResolverService;
 
+    private static final String CREATE_PAYMENT_LOG = "Creating payment: {}";
+    private static final String CANCEL_PAYMENT_LOG = "Cancelling payment ID: {}";
+    private static final String FETCH_PAYMENT_LOG = "Fetching payment details for ID: {}";
+    private static final String CLIENT_COUNTRY_LOG = "Client from country: {}, IP: {}";
+
     @PostMapping
     public ResponseEntity<PaymentResponseDTO> createPayment(@RequestBody PaymentRequestDTO request) {
-        log.info("Creating payment: {}", request);
+        log.info(CREATE_PAYMENT_LOG, request);
         PaymentResponseDTO response = paymentService.createPayment(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PostMapping("/{paymentId}/cancel")
     public ResponseEntity<PaymentResponseDTO> cancelPayment(@PathVariable Long paymentId) {
+        log.info(CANCEL_PAYMENT_LOG, paymentId);
         PaymentResponseDTO response = paymentService.cancelPayment(paymentId);
         return ResponseEntity.ok(response);
     }
@@ -52,6 +57,7 @@ public class PaymentController {
 
         String clientIp = ClientIpResolver.getClientIpAddress(request);
         countryResolverService.logClientCountry(clientIp);
+        log.info(CLIENT_COUNTRY_LOG, clientIp, clientIp);
 
         if (amount != null) {
             paymentIds = paymentService.getNonCancelledPaymentIdsByAmount(amount);
@@ -64,7 +70,7 @@ public class PaymentController {
 
     @GetMapping("/{paymentId}")
     public ResponseEntity<PaymentFeeResponseDTO> getPaymentById(@PathVariable Long paymentId) {
-        log.info("Fetching payment details for ID: {}", paymentId);
+        log.info(FETCH_PAYMENT_LOG, paymentId);
         PaymentFeeResponseDTO responseDTO = paymentService.getPaymentById(paymentId);
         return ResponseEntity.ok(responseDTO);
     }

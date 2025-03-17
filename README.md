@@ -30,8 +30,8 @@ Content-Type: application/json
 {
   "amount": 1222,
   "currency": "USD",
-  "debtorIban": "IBAN-123456-987",
-  "creditorIban": "PER-24569-658"
+  "debtorIban": "DE8937040044053",
+  "creditorIban": "GB29NWBK601613319"
 }
 ```
 

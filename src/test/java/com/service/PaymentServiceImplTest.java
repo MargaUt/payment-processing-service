@@ -1,11 +1,13 @@
 package com.service;
 
+
 import com.dto.PaymentFeeResponseDTO;
 import com.dto.PaymentNotificationDTO;
 import com.dto.PaymentRequestDTO;
 import com.dto.PaymentResponseDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.model.Currency;
 import com.model.Payment;
 import com.model.Type1Payment;
 import com.repository.PaymentRepository;
@@ -25,10 +27,17 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 
 @ExtendWith(MockitoExtension.class)
 class PaymentServiceImplTest {
@@ -55,7 +64,7 @@ class PaymentServiceImplTest {
         objectMapper.registerModule(new JavaTimeModule());
         paymentRequestDTO = new PaymentRequestDTO();
         paymentRequestDTO.setAmount(new BigDecimal("100.00"));
-        paymentRequestDTO.setCurrency("EUR");
+        paymentRequestDTO.setCurrency(Currency.EUR);
         paymentRequestDTO.setDebtorIban("DE123456789");
         paymentRequestDTO.setCreditorIban("DE987654321");
         paymentRequestDTO.setDetails("Valid payment details");

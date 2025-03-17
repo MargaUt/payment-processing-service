@@ -19,6 +19,10 @@ public class CountryResolverServiceImpl implements CountryResolverService {
     @Value("${ip-api.api.url}")
     String geoApiBaseUrl;
 
+    private static final String LOG_CLIENT_COUNTRY = "Client from country: {}, IP: {}";
+    private static final String LOG_FAILED_COUNTRY_RESOLUTION = "Failed to resolve country for IP: {}";
+    private static final String LOG_REST_CLIENT_EXCEPTION = "REST client exception when resolving country: {}";
+
     public CountryResolverServiceImpl() {
         this.restTemplate = new RestTemplate();
     }
@@ -26,11 +30,12 @@ public class CountryResolverServiceImpl implements CountryResolverService {
     public void logClientCountry(String ipAddress) {
         try {
             String country = resolveCountry(ipAddress);
-            LOGGER.info("Client from country: {}, IP: {}", country, ipAddress);
+            LOGGER.info(LOG_CLIENT_COUNTRY, country, ipAddress);
         } catch (Exception e) {
-            LOGGER.warn("Failed to resolve country for IP: {}", ipAddress);
+            LOGGER.warn(LOG_FAILED_COUNTRY_RESOLUTION, ipAddress);
         }
     }
+
     private String resolveCountry(String ipAddress) throws RestClientException {
         String url = geoApiBaseUrl + ipAddress;
 
@@ -48,7 +53,7 @@ public class CountryResolverServiceImpl implements CountryResolverService {
                 return "Unknown";
             }
         } catch (RestClientException e) {
-            LOGGER.debug("REST client exception when resolving country: {}", e.getMessage());
+            LOGGER.debug(LOG_REST_CLIENT_EXCEPTION, e.getMessage());
             throw e;
         }
     }
