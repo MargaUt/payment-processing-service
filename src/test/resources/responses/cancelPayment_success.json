@@ -1,0 +1,10 @@
+{
+  "id": 1,
+  "amount": 100.00,
+  "currency": "EUR",
+  "debtorIban": "DE123456789",
+  "creditorIban": "DE987654321",
+  "creationTime": "2025-03-17T12:00:00",
+  "cancelled": true,
+  "cancellationFee": 5.00
+}

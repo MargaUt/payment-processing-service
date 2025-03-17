@@ -1,16 +1,14 @@
 package com.service;
 
-import com.dto.GeoResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
-
 
 @Service
 public class CountryResolverServiceImpl implements CountryResolverService {
@@ -19,9 +17,8 @@ public class CountryResolverServiceImpl implements CountryResolverService {
     private final RestTemplate restTemplate;
 
     @Value("${ip-api.api.url}")
-    private String geoApiBaseUrl;
+    String geoApiBaseUrl;
 
-    @Autowired
     public CountryResolverServiceImpl() {
         this.restTemplate = new RestTemplate();
     }
@@ -34,16 +31,19 @@ public class CountryResolverServiceImpl implements CountryResolverService {
             LOGGER.warn("Failed to resolve country for IP: {}", ipAddress);
         }
     }
-
     private String resolveCountry(String ipAddress) throws RestClientException {
-
         String url = geoApiBaseUrl + ipAddress;
 
         try {
-            Map response = restTemplate.getForObject(url, Map.class);
+            ParameterizedTypeReference<Map<String, String>> responseType = new ParameterizedTypeReference<>() {};
+
+            Map<String, String> response = restTemplate.exchange(url,
+                    org.springframework.http.HttpMethod.GET,
+                    null,
+                    responseType).getBody();
 
             if (response != null && response.get("country") != null) {
-                return (String) response.get("country");
+                return response.get("country");
             } else {
                 return "Unknown";
             }
