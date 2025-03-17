@@ -51,6 +51,7 @@ GET /payments/{paymentId}
 ```
 
 ## Technologies Used
+- **Java 17** (Used for development)
 - **Spring Boot 3.2.2** (REST API, Validation, Logging)
 - **H2 Database** (In-memory for testing)
 - **Spring Data JPA** (Persistence Layer)
