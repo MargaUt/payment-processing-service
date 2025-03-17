@@ -5,6 +5,7 @@ import com.model.Payment;
 import com.model.Type1Payment;
 import com.model.Type2Payment;
 import com.model.Type3Payment;
+import com.model.Currency;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -23,7 +24,10 @@ public class PaymentUtils {
             throw new IllegalArgumentException("Amount must be positive");
         }
 
-        if (!"EUR".equals(request.getCurrency()) && !"USD".equals(request.getCurrency())) {
+        Currency currency;
+        try {
+            currency = request.getCurrency();
+        } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Currency must be EUR or USD");
         }
 
@@ -35,10 +39,11 @@ public class PaymentUtils {
             throw new IllegalArgumentException("Creditor IBAN is required");
         }
 
-        if ("EUR".equals(request.getCurrency()) &&
-                (request.getCreditorBic() == null || request.getCreditorBic().isBlank())) {
-            if (request.getDetails() == null || request.getDetails().isBlank()) {
-                throw new IllegalArgumentException("Details are required for TYPE1 (EUR) payments");
+        if (currency == Currency.EUR) {
+            if (request.getCreditorBic() == null || request.getCreditorBic().isBlank()) {
+                if (request.getDetails() == null || request.getDetails().isBlank()) {
+                    throw new IllegalArgumentException("Details are required for TYPE1 (EUR) payments");
+                }
             }
         }
     }
@@ -56,13 +61,15 @@ public class PaymentUtils {
             return payment;
         }
 
-        switch (request.getCurrency()) {
-            case "EUR":
+        Currency currency = request.getCurrency();
+
+        switch (currency) {
+            case EUR:
                 Type1Payment type1Payment = new Type1Payment();
                 type1Payment.setDetails(request.getDetails());
                 return type1Payment;
 
-            case "USD":
+            case USD:
                 Type2Payment type2Payment = new Type2Payment();
                 if (request.getDetails() != null && !request.getDetails().isBlank()) {
                     type2Payment.setDetails(request.getDetails());
@@ -95,7 +102,7 @@ public class PaymentUtils {
 
         BigDecimal fee = BigDecimal.valueOf(hours * coefficient);
 
-        if ("USD".equals(payment.getCurrency())) {
+        if (payment.getCurrency() == Currency.USD) {
             fee = convertUsdToEur(fee);
         }
 

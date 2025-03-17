@@ -8,8 +8,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.Column;
+import jakarta.persistence.Version;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
@@ -34,20 +37,25 @@ public abstract class Payment {
 
     @NotNull
     @DecimalMin(value = "0.01", message = "Amount must be positive")
+    @Column(updatable = false)
     private BigDecimal amount;
 
     @NotNull
-    @Pattern(regexp = "EUR|USD", message = "Currency must be EUR or USD")
-    private String currency;
+    @Enumerated(EnumType.STRING)
+    @Column(updatable = false)
+    private Currency currency;
 
     @NotNull
-    @NotBlank(message = "Debtor IBAN is required")
+    @Pattern(regexp = "^[A-Z]{2}[A-Z0-9]{2,30}$", message = "Invalid Debtor IBAN format")
+    @Column(updatable = false)
     private String debtorIban;
 
     @NotNull
-    @NotBlank(message = "Creditor IBAN is required")
+    @Pattern(regexp = "^[A-Z]{2}[A-Z0-9]{2,30}$", message = "Invalid Creditor IBAN format")
+    @Column(updatable = false)
     private String creditorIban;
 
+    @Column(updatable = false)
     private LocalDateTime creationTime;
 
     private BigDecimal cancellationFee;
@@ -56,4 +64,8 @@ public abstract class Payment {
 
     private boolean notified;
     private LocalDateTime notificationTime;
+
+    @Version
+    private Long version;
+
 }

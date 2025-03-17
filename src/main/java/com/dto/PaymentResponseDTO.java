@@ -1,5 +1,6 @@
 package com.dto;
 
+import com.model.Currency;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 public class PaymentResponseDTO {
     private Long id;
     private BigDecimal amount;
-    private String currency;
+    private Currency currency;
     private String debtorIban;
     private String creditorIban;
     private LocalDateTime creationTime;
