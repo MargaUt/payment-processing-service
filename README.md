@@ -50,11 +50,6 @@ GET /payments
 GET /payments/{paymentId}
 ```
 
-### 4. Log Client Country
-```
-GET /countryResolver/logClientCountry?ipAddress={clientIP}
-```
-
 ## Technologies Used
 - **Spring Boot 3.2.2** (REST API, Validation, Logging)
 - **H2 Database** (In-memory for testing)
