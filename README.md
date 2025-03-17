@@ -68,11 +68,20 @@ GET /payments/{paymentId}
    ```
    cd payment-service
    ```
-3. Build and run the application using Maven:
+3. Build the project and install the dependencies:
+   ```
+   mvn clean install
+   ```
+4. Run the application using Spring Boot:
    ```
    mvn spring-boot:run
    ```
-4. Access the API documentation:
+5. Access the API documentation:
    ```
    http://localhost:8080/swagger-ui.html
    ```
+6. Open the H2 console to interact with the in-memory database:
+   ```
+   http://localhost:8080/h2-console
+   ```
+
